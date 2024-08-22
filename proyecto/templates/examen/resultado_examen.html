@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Resultado - Sistema de Evaluación{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-5 pt-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Resultado de la Evaluación</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Puntaje:</h5>
+                    <p class="card-text">Obtuviste {{ puntaje }} de {{ total_preguntas }} respuestas correctas.</p>
+                    <p class="card-text">Tu calificación es {{ calificacion }}.</p>
+                    <a href="{% url 'examen' %}" class="btn btn-primary">Volver a Intentar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

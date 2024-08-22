@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluación - Sistema de Evaluación{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Temporizador -->
+    <div class="alert alert-info fixed-top text-center" style="z-index: 1030;">
+        <h4 class="mb-0">Tiempo Restante: <span id="timer">00:00:00</span></h4>
+    </div>
+
+    <div class="row mt-5 pt-4 pb-5" >
+        <div class="col-md-8 offset-md-2">
+            <div class="card mb-4 mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Evaluación de Conocimientos</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'examen' %}">
+                        {% csrf_token %}
+                        {% for pregunta in preguntas %}
+                            <div class="mt-4">
+                                <h5 class="card-title">Pregunta {{ forloop.counter }}:</h5>
+                                <p class="card-text">{{ pregunta.enunciado }}</p>
+                                
+                                {% for respuesta in pregunta.respuesta_set.all %}
+                                    <div class="form-check marcando">
+                                        <input class="form-check-input" type="radio" name="respuesta{{ pregunta.id }}" id="respuesta{{ pregunta.id }}{{ respuesta.id }}" value="{{ respuesta.id }}">
+                                        <label class="form-check-label w-75" for="respuesta{{ pregunta.id }}{{ respuesta.id }}">
+                                            {{ respuesta.texto }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary mt-3">Finalizar examen</button>
+                    </form>
+                    
+                    
+                       
+                </div>
+                
+            </div>
+            <!-- Paginación -->
+            <!-- (Aquí iría la paginación si decides implementarla) -->
+        </div>
+    </div>
+</div>
+
+
+<!-- JavaScript para el Temporizador -->
+<script>
+    // Configuración del temporizador (en segundos)
+    const tiempoTotal = {{ tiempo_limite }}; // Tiempo en segundos pasado desde la vista
+
+    function actualizarTemporizador() {
+        const ahora = new Date().getTime();
+        const fin = localStorage.getItem('finTiempo');
+        const tiempoRestante = Math.max(0, Math.floor((fin - ahora) / 1000));
+
+        if (tiempoRestante <= 0) {
+            document.getElementById('timer').textContent = '00:00:00';
+            // Aquí puedes agregar la lógica para finalizar la prueba, por ejemplo:
+            // alert('El tiempo se ha agotado.');
+            return;
+        }
+
+        const minutos = Math.floor(tiempoRestante / 60);
+        const segundos = tiempoRestante % 60;
+        const horas = Math.floor(minutos / 60);
+        const minutosRestantes = minutos % 60;
+
+        document.getElementById('timer').textContent =
+            String(horas).padStart(2, '0') + ':' +
+            String(minutosRestantes).padStart(2, '0') + ':' +
+            String(segundos).padStart(2, '0');
+
+        setTimeout(actualizarTemporizador, 1000);
+    }
+
+    function iniciarTemporizador() {
+        const ahora = new Date().getTime();
+        const fin = ahora + tiempoTotal * 1000;
+        localStorage.setItem('finTiempo', fin);
+        actualizarTemporizador();
+    }
+
+    // Iniciar el temporizador cuando se cargue la página
+    document.addEventListener('DOMContentLoaded', iniciarTemporizador);
+</script>
+
+{% endblock content %}
